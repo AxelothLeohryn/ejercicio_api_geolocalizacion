@@ -41,16 +41,17 @@ async function getPublicTransport() {
     try {
         let metroJson = await fetch('https://api.metro.net/LACMTA/vehicle_positions/all?geojson=false');
         let metro = await metroJson.json();
-        metro = await metro.map(element => element.position);
+        metro = await metro.map(element => {return {pos: element.position,
+                                            vehicleId: element.vehicle.vehicle_id }});
 
         if (contador === 0) {
             for (let i = 0; i < metro.length; i++) {
-                markers.push(L.marker([metro[i].latitude, metro[i].longitude]).addTo(map2));
+                markers.push(L.marker([metro[i].pos.latitude, metro[i].pos.longitude]).bindPopup(`Vehicle_id: ${metro[i].vehicleId}`).addTo(map2));
             }
         } else {
             for (let i = 0; i < markers.length; i++) {
-                let lat = metro[i].latitude;
-                let lng = metro[i].longitude;
+                let lat = metro[i].pos.latitude;
+                let lng = metro[i].pos.longitude;
                 let newLatLng = new L.LatLng(lat, lng);
                 markers[i].setLatLng(newLatLng);
             }
